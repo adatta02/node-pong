@@ -43,7 +43,7 @@ var PingPong = {
 	  PingPong.handleOne = PingPong.handleOne < 0 ? 0 : PingPong.handleOne;
 	  PingPong.handleTwo = PingPong.handleTwo < 0 ? 0 : PingPong.handleTwo;
 	  
-	  PingPong.qtWindow.update();  
+	  PingPong.qtWindow.update();
   },
   
   init: function(){
