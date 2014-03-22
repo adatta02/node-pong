@@ -42,7 +42,12 @@ var canvasBackend = {
         
     scale: 0,
     
-    run: function(){                                
+    run: function(){ 
+    	
+    	if( this.isRunning == false ){
+    		return false;
+    	}
+    	
         this.drawScene();
         this.space.step(1/60);                
         
@@ -163,7 +168,7 @@ var cpPong = function(){
     this.v = cp.v;
     this.space = new cp.Space();
         
-    this.space.iterations = 100;
+    this.space.iterations = 60;
     this.space.gravity = this.v(0, 0);
     this.space.sleepTimeThreshold = 0.5;
     this.space.collisionSlop = 0.1; 
@@ -197,27 +202,16 @@ var cpPong = function(){
     this.paddleTwo.setElasticity(1);
     this.paddleTwo.setFriction(0);        
         
-    this.space.setDefaultCollisionHandler(null, null, function(el){
-    	var b = null;
-    	
-    	// console.log( el );
-    	
-    	/*
-    	if( el.a.body == self.paddleOneBody && el.b.body == el. ){
-    		b = el.a;
-    	}    	
-    	
-    	if( b ){
-    		var v = b.body.getVel().neg();
-    		b.body.setVel(v);
-    	}
-    	*/
-    	
+    var self = this;    
+        
+    this.space.setDefaultCollisionHandler(null, null, function(el){     	    	
+        if( el.a.isGameEnder || el.b.isGameEnder ){
+        	self.isRunning = false;
+            alert("game over!");            
+        }        
     });    
     
-    
-    var self = this;
-        
+    this.isRunning = true;
     this.run();           
         
     $(window).keydown(function(e){
@@ -249,16 +243,18 @@ var cpPong = function(){
 
 _.extend( cpPong.prototype, canvasBackend );
 
-cpPong.prototype.addFloor = function() { 
+cpPong.prototype.addFloor = function() { 	
     this.floor = this.space.addShape( new cp.SegmentShape(this.space.staticBody, this.v(0, 0), this.v(640, 0), 0) );
     this.floor.setElasticity(1);
     this.floor.setFriction(0.0);    
     this.floor.setCollisionType(1);
+    this.floor.isGameEnder = true;
     
     this.ceiling = this.space.addShape( new cp.SegmentShape(this.space.staticBody, this.v(0, 480), this.v(640, 480), 0) );
     this.ceiling.setElasticity(1);
     this.ceiling.setFriction(0.0);    
     this.ceiling.setCollisionType(1);
+    this.ceiling.isGameEnder = true;
 };
 
 cpPong.prototype.addWalls = function() {
