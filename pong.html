@@ -183,17 +183,19 @@ var cpPong = function(){
     this.ball.setFriction(0.0);   
     this.ball.setCollisionType(1);
         
-    this.paddleOneBody = this.space.addBody( new cp.Body(Infinity, Infinity) );                
-    this.paddleOne = this.space.addShape( new cp.SegmentShape(this.paddleOneBody, this.v(300, 50), this.v(375, 50), 10) );    
+    this.paddleOneBody = this.space.addBody( new cp.Body(100000, cp.momentForBox(Infinity, 75, 10)) );
+    this.paddleOneBody.setPos( this.v(320, 60) );
+    
+    this.paddleOne = this.space.addShape( new cp.BoxShape(this.paddleOneBody, 75, 10) ); 
     this.paddleOne.setElasticity(1);
-    this.paddleOne.setFriction(0); 
-    this.paddleOne.lineWidth = 10;     
-        
-    this.paddleTwoBody = this.space.addBody( new cp.Body(Infinity, Infinity) );
-    this.paddleTwo = this.space.addShape( new cp.SegmentShape(this.paddleTwoBody, this.v(300, 420), this.v(375, 420), 10) );
+    this.paddleOne.setFriction(0);         
+
+    this.paddleTwoBody = this.space.addBody( new cp.Body(100000, cp.momentForBox(Infinity, 75, 10)) );
+    this.paddleTwoBody.setPos( this.v(320, 420) );
+    
+    this.paddleTwo = this.space.addShape( new cp.BoxShape(this.paddleTwoBody, 75, 10) ); 
     this.paddleTwo.setElasticity(1);
-    this.paddleTwo.setFriction(0); 
-    this.paddleTwo.lineWidth = 10;    
+    this.paddleTwo.setFriction(0);        
         
     this.space.setDefaultCollisionHandler(null, null, function(el){
     	var b = null;
@@ -248,17 +250,15 @@ var cpPong = function(){
 _.extend( cpPong.prototype, canvasBackend );
 
 cpPong.prototype.addFloor = function() { 
-    var floor = this.space.addShape( new cp.SegmentShape(this.space.staticBody, this.v(0, 0), this.v(640, 0), 0) );
-    floor.setElasticity(1);
-    floor.setFriction(0.0);
-    floor.setLayers(NOT_GRABABLE_MASK);
-    floor.setCollisionType(1);
+    this.floor = this.space.addShape( new cp.SegmentShape(this.space.staticBody, this.v(0, 0), this.v(640, 0), 0) );
+    this.floor.setElasticity(1);
+    this.floor.setFriction(0.0);    
+    this.floor.setCollisionType(1);
     
-    var ceiling = this.space.addShape( new cp.SegmentShape(this.space.staticBody, this.v(0, 480), this.v(640, 480), 0) );
-    ceiling.setElasticity(1);
-    ceiling.setFriction(0.0);
-    ceiling.setLayers(NOT_GRABABLE_MASK);
-    ceiling.setCollisionType(1);
+    this.ceiling = this.space.addShape( new cp.SegmentShape(this.space.staticBody, this.v(0, 480), this.v(640, 480), 0) );
+    this.ceiling.setElasticity(1);
+    this.ceiling.setFriction(0.0);    
+    this.ceiling.setCollisionType(1);
 };
 
 cpPong.prototype.addWalls = function() {
