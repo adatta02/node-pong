@@ -18,19 +18,57 @@
         margin: 0px;
     }
     
-    canvas { /* float below */
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: -1;
+    canvas { 
+	    padding-left: 0;
+	    padding-right: 0;
+	    margin-left: auto;
+	    margin-right: auto;
+	    display: block;
     }
+    
+    #canvasContainer {
+        width: 90%;
+        height: 100%;
+        margin: auto;
+        position: relative;
+    }
+    
+    #scoreboard {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        width: 200px;
+        height: 100px;
+        background-color: #efefef;
+        border-radius: 5px;        
+    }
+    
+    #scoreboard th, #scoreboard td {
+        text-align: center;
+    }
+    
     </style>
     
   </head>
   
 <body>
-    <canvas></canvas>    
+    <div id="scoreboard"></div>
+    
+    <div id="canvasContainer">
+        <canvas></canvas>
+    </div>
+    
+<script type="text/template" id="scoreboardTemplate">
+        <table class="table table-condensed">
+            <tr><th>P1</th><th>VS.</th><th>P2</th></tr>
+            <tr><td><%= s1 %></td><td></td><td><%= s2 %></td></tr>
+        </table>
+</script>     
+
 <script>
+
+var scoreboard = {s1: 0, s2: 0};
+var scoreboardTemplate = _.template( $("#scoreboardTemplate").html() );
 
 var ctx;
 var canvas = $("canvas")[0];
@@ -76,26 +114,30 @@ var canvasBackend = {
         
         this.canvas = $("canvas")[0];
         this.ctx = $("canvas")[0].getContext('2d');
-                  
-        $("canvas").attr("width", window.innerWidth);
-        $("canvas").attr("height", window.innerHeight);
+                                  
+        var width = Math.ceil( (window.innerHeight * 640) / 480 ) + 25;
         
-        var width = this.canvas.width;
-        var height = this.canvas.height;         
+        $("canvas").attr("height", window.innerHeight);
+        $("canvas").attr("width", width);        
+        
+        // var width = this.canvas.width;
+        var height = this.canvas.height;
+                
         window.scale = 0;          
         
-        if (width/height > 640/480) {
+        if (width / height > 640 / 480) {
             window.scale = height / 480;
         } else {
             window.scale = width / 640;
-        }       
+        }        
         
         cp.Shape.prototype.point2canvas = function(point){          
-            return cp.v( point.x * window.scale, (480 - point.y) * window.scale );
+            return cp.v( point.x * window.scale, (480 - point.y) * window.scale );        	
         };
         
-        cp.Shape.prototype.drawLine = function(ctx, a, b){                  
-            a = this.point2canvas(a); b = this.point2canvas(b);
+        cp.Shape.prototype.drawLine = function(ctx, a, b){        
+            a = this.point2canvas(a); 
+            b = this.point2canvas(b);
             ctx.beginPath();
             ctx.moveTo(a.x + .5, a.y);
             ctx.lineTo(b.x + .5, b.y);
@@ -159,7 +201,7 @@ var canvasBackend = {
 // Its really an arbitrary number except for the ratio - everything is done
 // in floating point maths anyway.
 
-var cpPong = function(){    
+var cpPong = function(){
     
     this.addDrawables();
     
@@ -179,25 +221,18 @@ var cpPong = function(){
     var mass = 10;    
     var radius = 20;
         
-    this.body = this.space.addBody( new cp.Body(mass, cp.momentForCircle(mass, 0, radius, this.v(0, 0))) );
-    this.body.setPos( this.v(20, 320) );
-    this.body.setVel( this.v(200, -200) );
-            
+    this.body = this.space.addBody( new cp.Body(mass, cp.momentForCircle(mass, 0, radius, this.v(0, 0))) );            
     this.ball = this.space.addShape( new cp.CircleShape(this.body, radius, this.v(0, 0)) );
     this.ball.setElasticity(1);    
     this.ball.setFriction(0.0);   
     this.ball.setCollisionType(1);
         
-    this.paddleOneBody = this.space.addBody( new cp.Body(100000, cp.momentForBox(Infinity, 75, 10)) );
-    this.paddleOneBody.setPos( this.v(320, 60) );
-    
+    this.paddleOneBody = this.space.addBody( new cp.Body(100000, cp.momentForBox(Infinity, 75, 10)) );        
     this.paddleOne = this.space.addShape( new cp.BoxShape(this.paddleOneBody, 75, 10) ); 
     this.paddleOne.setElasticity(1);
     this.paddleOne.setFriction(0);         
 
-    this.paddleTwoBody = this.space.addBody( new cp.Body(100000, cp.momentForBox(Infinity, 75, 10)) );
-    this.paddleTwoBody.setPos( this.v(320, 420) );
-    
+    this.paddleTwoBody = this.space.addBody( new cp.Body(100000, cp.momentForBox(Infinity, 75, 10)) );        
     this.paddleTwo = this.space.addShape( new cp.BoxShape(this.paddleTwoBody, 75, 10) ); 
     this.paddleTwo.setElasticity(1);
     this.paddleTwo.setFriction(0);        
@@ -205,12 +240,26 @@ var cpPong = function(){
     var self = this;    
         
     this.space.setDefaultCollisionHandler(null, null, function(el){     	    	
-        if( el.a.isGameEnder || el.b.isGameEnder ){
+        if( el.a.isGameEnder || el.b.isGameEnder ){        	        	
+        	var pointFor = el.a.pointFor ? el.a.pointFor : el.b.pointFor;
+        	scoreboard[ pointFor ] += 1;
+        	
+        	$("#scoreboard").html( scoreboardTemplate(scoreboard) );
+        	
         	self.isRunning = false;
-            alert("game over!");            
+            alert("Round over!");
+            
+            window.setTimeout(function(){
+            	self.resetGameObjects();
+                self.isRunning = true;
+                self.run();
+            }, 3000);
         }        
     });    
     
+    $("#scoreboard").html( scoreboardTemplate(scoreboard) );
+    
+    this.resetGameObjects();
     this.isRunning = true;
     this.run();           
         
@@ -243,18 +292,33 @@ var cpPong = function(){
 
 _.extend( cpPong.prototype, canvasBackend );
 
+cpPong.prototype.resetGameObjects = function(){
+    this.body.setPos( this.v(20, 320) );
+    this.body.setVel( this.v(200, -200) );
+    
+    this.paddleOneBody.setPos( this.v(320, 60) );
+    this.paddleTwoBody.setPos( this.v(320, 420) );
+    
+    this.paddleOneBody.setVel( this.v(0, 0) );
+    this.paddleTwoBody.setVel( this.v(0, 0) );		
+};
+
 cpPong.prototype.addFloor = function() { 	
     this.floor = this.space.addShape( new cp.SegmentShape(this.space.staticBody, this.v(0, 0), this.v(640, 0), 0) );
     this.floor.setElasticity(1);
     this.floor.setFriction(0.0);    
     this.floor.setCollisionType(1);
+    
     this.floor.isGameEnder = true;
+    this.floor.pointFor = "s1";
     
     this.ceiling = this.space.addShape( new cp.SegmentShape(this.space.staticBody, this.v(0, 480), this.v(640, 480), 0) );
     this.ceiling.setElasticity(1);
     this.ceiling.setFriction(0.0);    
     this.ceiling.setCollisionType(1);
+    
     this.ceiling.isGameEnder = true;
+    this.ceiling.pointFor = "s2";
 };
 
 cpPong.prototype.addWalls = function() {
