@@ -6192,4 +6192,11 @@ SimpleMotor.prototype.getImpulse = function()
 	return Math.abs(this.jAcc);
 };
 
+if (typeof exports !== 'undefined') {
+	if (typeof module !== 'undefined' && module.exports) {
+		exports = module.exports = cp;
+	}
+	exports.cp = cp;
+}
+
 })();
