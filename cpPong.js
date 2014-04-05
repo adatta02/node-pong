@@ -92,6 +92,7 @@ cpPong.prototype.addFloor = function() {
     
     this.floor.isGameEnder = true;
     this.floor.pointFor = "s1";
+    this.floor.lineWidth = 5;
     
     this.ceiling = this.space.addShape( new cp.SegmentShape(this.space.staticBody, this.v(0, 480), this.v(640, 480), 0) );
     this.ceiling.setElasticity(1);
@@ -100,6 +101,7 @@ cpPong.prototype.addFloor = function() {
     
     this.ceiling.isGameEnder = true;
     this.ceiling.pointFor = "s2";
+    this.ceiling.lineWidth = 5;
 };
 
 cpPong.prototype.addWalls = function() {
@@ -110,13 +112,14 @@ cpPong.prototype.addWalls = function() {
     wall1.setFriction(0.0);
     wall1.setLayers(NOT_GRABABLE_MASK);
     wall1.setCollisionType(1);
-            
+    wall1.lineWidth = 5;
+    
     var wall2 = space.addShape(new cp.SegmentShape(space.staticBody, this.v(640, 0), this.v(640, 480), 0));
     wall2.setElasticity(1);
     wall2.setFriction(0.0);
     wall2.setLayers(NOT_GRABABLE_MASK);
     wall2.setCollisionType(1);
-    
+    wall2.lineWidth = 5;
 };
 
 //Export the Underscore object for **Node.js**, with

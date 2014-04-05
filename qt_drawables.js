@@ -37,13 +37,15 @@ var qtBackend = {
 	addDrawables: function(){
 		var app = new qt.QApplication();		
 	    global.qtWindow = new qt.QWidget;
-	    
-	    global.linePxmap = new qt.QPixmap(100, 100);
+	    	    
 	    global.p = new qt.QPainter();
-	    	    	    
-	    global.qtWindow.showMaximized();	    	    
+	    
+	    global.linePen = new qt.QPen( new qt.QBrush( 8 ), 5 );	    	    
+	    global.thinPen = new qt.QPen( new qt.QBrush( 100 ), 1 );
+	    
 	    var boundDrawScene = _.bind(this.drawScene, this);
 	    global.qtWindow.paintEvent(boundDrawScene);
+	    global.qtWindow.showMaximized();
 	    
 	    setInterval(function() {app.processEvents();}, 0);
 	    
@@ -61,16 +63,20 @@ var qtBackend = {
             return cp.v( point.x * global.scale, (480 - point.y) * global.scale );        	
         };
         
-        cp.Shape.prototype.drawLine = function(ctx, a, b){        
+        cp.Shape.prototype.drawLine = function(ctx, a, b, lineWidth){        
             a = this.point2canvas(a); 
             b = this.point2canvas(b);                                  
+                        
+            var path = new qt.QPainterPath();
+            var pen = lineWidth == 5 ? global.linePen : global.thinPen;
+            
+            path.moveTo( new qt.QPointF(a.x, a.y) );
+            path.lineTo( new qt.QPointF(b.x, b.y) );
             
             global.p.begin(global.qtWindow);
-            global.p.fillRect( 0, 0, 10, 10, 8 );
-            global.p.end();
-            
-            console.log( a );
-            console.log( b );
+            global.p.strokePath( path, pen );
+            global.p.end();            
+                        
         };
         
         cp.Shape.prototype.drawCircle = function(ctx, c, radius){
@@ -80,12 +86,12 @@ var qtBackend = {
         
         cp.SegmentShape.prototype.draw = function(ctx) {                                    
             var lineWidth = this.lineWidth ? this.lineWidth : Math.max(1, this.r * global.scale * 2);
-            this.drawLine(ctx, this.ta, this.tb);
+            this.drawLine(ctx, this.ta, this.tb, lineWidth);
         };
 
         cp.CircleShape.prototype.draw = function(ctx) {               
             this.drawCircle(ctx, this.tc, this.r);            
-            this.drawLine(ctx, this.tc, cp.v.mult(this.body.rot, this.r).add(this.tc));
+            this.drawLine(ctx, this.tc, cp.v.mult(this.body.rot, this.r).add(this.tc), 1);
         };                    
         
         cp.PolyShape.prototype.draw = function(ctx){
