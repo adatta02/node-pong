@@ -42,6 +42,7 @@ var qtBackend = {
 	    
 	    global.linePen = new qt.QPen( new qt.QBrush( 8 ), 5 );	    	    
 	    global.thinPen = new qt.QPen( new qt.QBrush( 100 ), 1 );
+	    global.ballPen = new qt.QPen( new qt.QBrush( 2 ), 5 );
 	    
 	    var boundDrawScene = _.bind(this.drawScene, this);
 	    global.qtWindow.paintEvent(boundDrawScene);
@@ -75,13 +76,19 @@ var qtBackend = {
             
             global.p.begin(global.qtWindow);
             global.p.strokePath( path, pen );
-            global.p.end();            
-                        
+            global.p.end();                        
         };
         
         cp.Shape.prototype.drawCircle = function(ctx, c, radius){
             var c = this.point2canvas(c);
-                       
+            
+            global.p.begin(global.qtWindow);
+            
+            global.p.setPen( global.ballPen );
+            global.p.setBrush( new qt.QBrush( 2 ) );
+            
+            global.p.drawEllipse( new qt.QPointF(c.x, c.y), radius, radius );
+            global.p.end();
         }
         
         cp.SegmentShape.prototype.draw = function(ctx) {                                    
