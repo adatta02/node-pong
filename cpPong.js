@@ -18,7 +18,7 @@ var cpPong = function(){
     this.v = cp.v;
     this.space = new cp.Space();
         
-    this.space.iterations = 60;
+    this.space.iterations = 10;
     this.space.gravity = this.v(0, 0);
     this.space.sleepTimeThreshold = 0.5;
     this.space.collisionSlop = 0.1; 
@@ -44,33 +44,29 @@ var cpPong = function(){
     this.paddleTwo = this.space.addShape( new cp.BoxShape(this.paddleTwoBody, 75, 10) ); 
     this.paddleTwo.setElasticity(1);
     this.paddleTwo.setFriction(0);        
-        
+    
+    this.scoreboard = {s1: 0, s2: 0};
+    
     var self = this;    
-        
+    
     this.resetGameObjects();
     this.isRunning = true;
     this.run();
-    
-    /*
+        
     this.space.setDefaultCollisionHandler(null, null, function(el){     	    	
         if( el.a.isGameEnder || el.b.isGameEnder ){        	        	
         	var pointFor = el.a.pointFor ? el.a.pointFor : el.b.pointFor;
-        	scoreboard[ pointFor ] += 1;
-        	
-        	$("#scoreboard").html( scoreboardTemplate(scoreboard) );
         	
         	self.isRunning = false;
-            alert("Round over!");
-            
-            window.setTimeout(function(){
-            	self.resetGameObjects();
-                self.isRunning = true;
-                self.run();
-            }, 3000);
+        	
+        	self.scoreboard[ pointFor ] += 1;            	
+        	self.renderScoreBoard();
+        	
+        	self.alertRoundOver();
+        	self.resetGame();        	        	        	
         }        
     });          
-        
-    */ 
+    
 };
 
 cpPong.prototype.resetGameObjects = function(){

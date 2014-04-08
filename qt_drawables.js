@@ -13,7 +13,7 @@ var qtBackend = {
     	}
     	        
         global.qtWindow.update();        
-        this.space.step(1/60);
+        this.space.step(1/30);
         
         var boundRun = _.bind(this.run, this);
         
@@ -26,14 +26,39 @@ var qtBackend = {
 			return;
 		}
 		
-		var self = this;
-        
+		var self = this;        
         this.space.eachShape(function(shape) {          
             shape.draw();       
         });
+        
+        var font = new qt.QFont();
+        font.setPixelSize(24);
+        
+        global.p.begin(global.qtWindow);
+        global.p.setFont( font );
+        global.p.drawText(600, 40, "" + this.scoreboard.s1);
+        global.p.drawText(600, 865, "" + this.scoreboard.s2);
+        global.p.end();
                 
      },
-		
+	
+     resetGame: function(){
+     	var self = this;
+        setTimeout(function(){
+             self.resetGameObjects();
+             self.isRunning = true;
+             self.run();
+         }, 3000);    	
+     },
+     
+     renderScoreBoard: function(){
+     	
+     },
+     
+     alertRoundOver: function(){
+     	console.log("Round over!");
+     },     
+     
 	addDrawables: function(){
 		var app = new qt.QApplication();		
 	    global.qtWindow = new qt.QWidget;
@@ -46,7 +71,10 @@ var qtBackend = {
 	    
 	    var boundDrawScene = _.bind(this.drawScene, this);
 	    global.qtWindow.paintEvent(boundDrawScene);
-	    global.qtWindow.showMaximized();
+	    
+	    global.qtWindow.resize( 1200, 900 );
+	    global.qtWindow.show();
+	    // global.qtWindow.showMaximized();
 	    
 	    setInterval(function() {app.processEvents();}, 0);
 	    
@@ -98,11 +126,27 @@ var qtBackend = {
 
         cp.CircleShape.prototype.draw = function(ctx) {               
             this.drawCircle(ctx, this.tc, this.r);            
-            this.drawLine(ctx, this.tc, cp.v.mult(this.body.rot, this.r).add(this.tc), 1);
+            // this.drawLine(ctx, this.tc, cp.v.mult(this.body.rot, this.r).add(this.tc), 1);
         };                    
         
         cp.PolyShape.prototype.draw = function(ctx){
         	
+            var verts = this.tVerts; var len = verts.length;            
+            var lastPoint = this.point2canvas( new cp.v( verts[len - 2], verts[len - 1] ) );
+                                                           
+            var path = new qt.QPainterPath();
+            var pen = global.thinPen;                      
+            path.moveTo( new qt.QPointF(lastPoint.x, lastPoint.y) );
+
+            for(var i = 0; i < len; i+=2){
+                var p = this.point2canvas(new cp.v(verts[i], verts[i+1]));
+                path.lineTo( new qt.QPointF(p.x, p.y) );
+            }        	
+        	
+            global.p.begin(global.qtWindow);            
+            global.p.fillPath( path, new qt.QBrush( 2 ) );
+            global.p.end(); 
+            
         };
         
 	},

@@ -68,7 +68,6 @@
 
 <script>
 
-var scoreboard = {s1: 0, s2: 0};
 var scoreboardTemplate = _.template( $("#scoreboardTemplate").html() );
 
 var ctx;
@@ -108,6 +107,23 @@ var canvasBackend = {
         });        
     },
     
+    resetGame: function(){
+    	var self = this;
+        window.setTimeout(function(){
+            self.resetGameObjects();
+            self.isRunning = true;
+            self.run();
+        }, 3000);    	
+    },
+    
+    renderScoreBoard: function(){
+    	$("#scoreboard").html( scoreboardTemplate(this.scoreboard) );
+    },
+    
+    alertRoundOver: function(){
+    	alert("Round over!");
+    },
+    
     addDrawables: function(){
         
         this.canvas = $("canvas")[0];
@@ -129,7 +145,7 @@ var canvasBackend = {
             window.scale = width / 640;
         }        
         
-        $("#scoreboard").html( scoreboardTemplate(scoreboard) );
+        $("#scoreboard").html( scoreboardTemplate(this.scoreboard) );
         
         var self = this;
         $(window).keydown(function(e){
