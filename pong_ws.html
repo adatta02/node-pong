@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+
+    <!-- Bootstrap -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="jquery-2.1.0.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>    
+    
+    <style>    
+        .container-fluid, .row, .col-md-12 {
+            height: 100%;
+        }
+    
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        #boardContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        
+        #paddle-one {
+            display: none;
+            position: absolute;            
+            background-color: #0063CC;
+            height: 25px;
+            width: 100px;
+            left: 0px;
+            top: 25px;            
+        }
+        
+        #paddle-two {
+            display: none;
+            position: absolute;            
+            background-color: green;
+            height: 25px;
+            width: 100px;
+            left: 0px;
+            top: 93%;    
+        }        
+        
+        .centered {
+            text-align: center;
+        }
+    </style>    
+  </head>
+  <body>
+  
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                
+                <div id="playerPicker">                    
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-2 centered">
+                            <h3>Select your player:</h3>
+                            <a data-provide="select-player" href="#1" class="btn btn-lg btn-primary">Player 1</a>
+                            &nbsp;&nbsp;
+                            <a data-provide="select-player" href="#2" class="btn btn-lg btn-success">Player 2</a>
+                        </div>                      
+                    </div>
+                </div>
+                
+                <div id="boardContainer">
+                    
+                    <div id="paddle-one"></div>
+                    <div id="paddle-two"></div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    
+      var containerWidth = null;
+      var containerOffsetX = null;
+      var playerNumber = null;      
+      
+      function openWebsocket(){
+          
+          var ws = new WebSocket('ws://pi:8080');
+                                  
+          ws.onclose = function(){
+              $("#boardContainer").unbind("mousemove");
+          };
+          
+          ws.onopen = function() {
+        	  
+              $(window).keydown(function(e){
+            	  
+            	  var dir = "";            	  
+                  if( e.keyCode == 39 ){
+                	  dir = "right";    
+                  }
+                  
+                  if( e.keyCode == 37 ){         
+                	  dir = "left";
+                  }                          
+                  
+                  var msg = {"type": "move", "player": playerNumber, "dir": dir};                                                 
+                  ws.send( JSON.stringify(msg) );                  
+              });        	  
+        	  
+              /*
+              $("#boardContainer").mousemove(function(e){
+                  var mousePercent = (e.pageX - containerOffsetX) / containerWidth;
+                  var mousePos = mousePercent * containerWidth;
+                  
+                  var xPos = mousePos - ($("#paddle-one").width() / 2 );                  
+                  $("#paddle-one").css("left", xPos);
+                  
+                  var msg = {"type": "move", "player": playerNumber, "pos": mousePercent};                                                 
+                  ws.send( JSON.stringify(msg) );
+              });
+              */
+              
+          };
+
+          ws.onmessage = function(eventDetails){
+              console.log(eventDetails.data);
+          };                          
+      }
+    
+      $(document).ready(function(){
+          
+          containerWidth = $("#boardContainer").width();
+          containerOffsetX = $("#boardContainer").offset().left;          
+          
+          $("[data-provide='select-player']").click(function(){
+              playerNumber = $(this).attr("href").replace("#", "") == "1" ? "one" : "two";
+              
+              $("#playerPicker").hide();
+              $("#boardContainer").show();
+              
+              if( playerNumber == "1" ){
+                  $("#paddle-one").show();
+              }
+              
+              if( playerNumber == "2" ){
+                  $("#paddle-two").show();
+              }
+              
+              openWebsocket();
+              return false;
+          });         
+                  
+      });
+      
+    </script>
+    
+  </body>
+</html>

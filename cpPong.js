@@ -118,6 +118,14 @@ cpPong.prototype.addWalls = function() {
     wall2.lineWidth = 5;
 };
 
+cpPong.prototype.movePaddle = function(paddle, direction){	
+	var target = paddle == "one" ? this.paddleOneBody : this.paddleTwoBody;
+	var velocity = direction == "right" ? 100 : -100;
+	
+    var pt = target.getVel().add( this.v(velocity, 0) ); 
+    target.setVel( pt );		
+};
+
 //Export the Underscore object for **Node.js**, with
 // backwards-compatibility for the old `require()` API. If we're in
 // the browser, add `_` as a global object via a string identifier,

@@ -148,29 +148,22 @@ var canvasBackend = {
         $("#scoreboard").html( scoreboardTemplate(this.scoreboard) );
         
         var self = this;
-        $(window).keydown(function(e){
-            
-            var velocity = 100;
-            
-            if( e.key == "Right" ){
-                var pt = self.paddleOneBody.getVel().add( self.v(velocity, 0) ); 
-                self.paddleOneBody.setVel( pt );
+        $(window).keydown(function(e){                    
+            if( e.keyCode == 39 ){
+                self.movePaddle("one", "right");
             }
             
-            if( e.key == "Left" ){         
-                var pt = self.paddleOneBody.getVel().add( self.v(-velocity, 0) );
-                self.paddleOneBody.setVel( pt );
+            if( e.keyCode == 37 ){         
+            	self.movePaddle("one", "left");
             }
                     
             if( e.keyCode == 87 ){
-                var pt = self.paddleTwoBody.getVel().add( self.v(velocity, 0) ); 
-                self.paddleTwoBody.setVel( pt );
+            	self.movePaddle("two", "right");
             }
             
             if( e.keyCode == 81 ){         
-                var pt = self.paddleTwoBody.getVel().add( self.v(-velocity, 0) );
-                self.paddleTwoBody.setVel( pt );
-            }        
+            	self.movePaddle("two", "left");
+            }
         });         
         
         cp.Shape.prototype.point2canvas = function(point){          
