@@ -29,7 +29,7 @@
             display: none;
         }
         
-        #paddle-one {
+        #paddle-two {
             display: none;
             position: absolute;            
             background-color: #0063CC;
@@ -39,7 +39,7 @@
             top: 25px;            
         }
         
-        #paddle-two {
+        #paddle-one {
             display: none;
             position: absolute;            
             background-color: green;
@@ -64,15 +64,15 @@
                     <div class="row">
                         <div class="col-md-8 col-md-offset-2 centered">
                             <h3>Select your player:</h3>
-                            <a data-provide="select-player" href="#1" class="btn btn-lg btn-primary">Player 1</a>
+                            <a data-provide="select-player" href="#1" class="btn btn-lg btn-success">Player 1</a>
                             &nbsp;&nbsp;
-                            <a data-provide="select-player" href="#2" class="btn btn-lg btn-success">Player 2</a>
+                            <a data-provide="select-player" href="#2" class="btn btn-lg btn-primary ">Player 2</a>
                         </div>                      
                     </div>
                 </div>
                 
                 <div id="boardContainer">
-                    
+                                                            
                     <div id="paddle-one"></div>
                     <div id="paddle-two"></div>
                     
@@ -143,11 +143,11 @@
               $("#playerPicker").hide();
               $("#boardContainer").show();
               
-              if( playerNumber == "1" ){
+              if( playerNumber == "one" ){
                   $("#paddle-one").show();
               }
               
-              if( playerNumber == "2" ){
+              if( playerNumber == "two" ){
                   $("#paddle-two").show();
               }
               
