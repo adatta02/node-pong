@@ -159,29 +159,30 @@ _.extend( cpPong.prototype, qtBackend );
 var WebSocketServer = require('ws').Server;
 var wss = new WebSocketServer({port: 8080});
 
-// cp.movePaddle("one", "right");
-
-var cp;
+var cpPongClient = null;
 var clients = [];
 
 wss.on('connection', function(ws) {
 	
+	console.log("client connected!");
+	console.log( clients.length );
+	
 	clients.push( ws );	
 	
 	if( clients.length == 2 ){
-		cp = new cpPong();
+		cpPongClient = new cpPong();
 	}
 	
     ws.on('message', function(message) {    	
-    	if( !cp ){
+    	if( !cpPongClient || !cpPongClient.isRunning ){
     		return;
     	}
     	
-        console.log('received: %s', message);
+        // console.log('received: %s', message);
         message = JSON.parse(message);
         
         if( message.type == "move" ){
-        	cp.movePaddle(message.player, message.dir);
+        	cpPongClient.movePaddle(message.player, message.dir);
         }
         
     });

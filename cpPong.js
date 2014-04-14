@@ -120,10 +120,11 @@ cpPong.prototype.addWalls = function() {
 
 cpPong.prototype.movePaddle = function(paddle, direction){	
 	var target = paddle == "one" ? this.paddleOneBody : this.paddleTwoBody;
-	var velocity = direction == "right" ? 100 : -100;
+	var velocity = direction == "right" ? 500 : -500;
 	
     var pt = target.getVel().add( this.v(velocity, 0) ); 
-    target.setVel( pt );		
+    target.setVel( this.v(velocity, 0) );
+    // target.setVel( pt );
 };
 
 //Export the Underscore object for **Node.js**, with

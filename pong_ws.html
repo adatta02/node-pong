@@ -89,7 +89,7 @@
       
       function openWebsocket(){
           
-          var ws = new WebSocket('ws://pi:8080');
+          var ws = new WebSocket('ws://192.168.8.106:8080');
                                   
           ws.onclose = function(){
               $("#boardContainer").unbind("mousemove");
