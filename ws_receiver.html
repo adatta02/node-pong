@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+
+    <!-- Bootstrap -->
+    <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <script src="jquery-2.1.0.min.js"></script>
+    <script src="bootstrap/js/bootstrap.min.js"></script>    
+    <script src="cp.js"></script>
+    
+    <style>    
+        .container-fluid, .row, .col-md-12 {
+            height: 100%;
+        }
+    
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        #boardContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+	    canvas { 
+	        padding-left: 0;
+	        padding-right: 0;
+	        margin-left: auto;
+	        margin-right: auto;
+	        display: block;
+	    }
+
+        
+	    #canvasContainer {
+	        width: 90%;
+	        height: 100%;
+	        margin: auto;
+	        position: relative;
+	    }       
+        
+        .centered {
+            text-align: center;
+        }
+    </style>    
+  </head>
+  <body>
+  
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                                
+            <div id="canvasContainer">
+                <canvas></canvas>
+            </div>
+                
+            </div>
+       </div>
+    </div>
+
+    <script>
+            
+      $(document).ready(function(){
+    	 
+          var canvas = $("canvas")[0];
+          var ctx = $("canvas")[0].getContext('2d');                                    
+          var width = Math.ceil( (window.innerHeight * 640) / 480 ) + 25;
+          
+          $("canvas").attr("height", window.innerHeight);
+          $("canvas").attr("width", width);        
+          
+          // var width = this.canvas.width;
+          var height = canvas.height;
+                  
+          window.scale = 0;          
+          
+          if (width / height > 640 / 480) {
+              window.scale = height / 480;
+          } else {
+              window.scale = width / 640;
+          }        
+    	
+          function point2canvas(point){          
+              return cp.v( point.x * window.scale, (480 - point.y) * window.scale );          
+          }
+          
+          window.clearRect = function(params){
+        	  ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }          
+    	  
+          window.drawCircle = function(params){
+        	  clearRect();
+              var c = point2canvas( params.tc );
+              ctx.beginPath();
+              ctx.arc(c.x, c.y, window.scale * params.r, 0, 2 * Math.PI, false);
+              ctx.fill();
+              ctx.stroke();
+          }
+          
+    	  var url = "ws://" + window.location.hostname + ":8080";
+    	  var ws = new WebSocket( url );
+    	 
+    	 ws.onopen = function(event){
+    		 
+    	 };
+    	 
+         ws.onmessage = function(eventDetails){
+             var msg = JSON.parse( eventDetails.data );
+             window[ msg.fn ].call( null, msg );
+         };
+         
+      });
+    </script>
+    
+    </body>
+</html>
