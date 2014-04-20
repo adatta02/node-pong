@@ -143,9 +143,7 @@ var canvasBackend = {
             window.scale = height / 480;
         } else {
             window.scale = width / 640;
-        }        
-        
-        $("#scoreboard").html( scoreboardTemplate(this.scoreboard) );
+        }                       
         
         var self = this;
         $(window).keydown(function(e){                    

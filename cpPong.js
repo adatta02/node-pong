@@ -50,6 +50,7 @@ var cpPong = function(){
     var self = this;    
     
     this.resetGameObjects();
+    this.renderScoreBoard();
     this.isRunning = true;
     this.run();
         
