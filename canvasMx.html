@@ -84,14 +84,10 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">  
-                <div id="canvasContainer">
-                    
-                </div>
+                <canvas id="c" height="680" width="1400"></canvas>
             </div>
         </div>
-   </div>
-  
-    <canvas id="c" height="680" width="1400"></canvas>
+   </div>      
   
     <script>
       
@@ -115,17 +111,17 @@
         	  
         	  if( payload.type == "download" ){
         		  
-                  var img = new Image();
-                  img.src = "http://" + window.location.hostname + "/node-pong/" + payload.targetUrl;                  
-                  img.onload = function(){
-                      var imgInstance = new fabric.Image(img, {left: 10, top: 10, angle: 0});
+                  fabric.Image.fromURL("http://" + window.location.hostname + ":8000/" + payload.targetUrl, function(oImg) {
+                	  canvas.add(oImg);
+                	  
+                	  /*
                       if( img.height > img.width ){
                           imgInstance.scaleToHeight( 300 );
                       }else{
                           imgInstance.scaleToWidth( 300 );
                       }
-                      canvas.add(imgInstance);            
-                  };
+                	  */
+                  });        		  
                   
         	  }
         	  
