@@ -8,6 +8,7 @@
 
     <!-- Bootstrap -->
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    
     <script src="jquery-2.1.0.min.js"></script>
     <script src="bootstrap/js/bootstrap.min.js"></script>    
     <script src="fabric.js"></script>
@@ -59,7 +60,8 @@
                 <div class="panel panel-default panel-primary">
                     <div class="panel-heading"><div class="panel-title">Add an image</div></div>
                     <div class="panel-body">        
-                    
+                        
+                        <a id="addByUrl" href="#" class="btn btn-default">Add by URL</a>
                     </div>
                 </div>
             </div>
@@ -79,22 +81,65 @@
         </div>
     </div>
   
-    <div id="canvasContainer">
-        <canvas id="c" height="680" width="1400"></canvas>
-    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">  
+                <div id="canvasContainer">
+                    
+                </div>
+            </div>
+        </div>
+   </div>
+  
+    <canvas id="c" height="680" width="1400"></canvas>
   
     <script>
       
       var canvas;
+      var ws;
       
-      $(document).ready(function(){         
-          
-    	  /*
+      $(document).ready(function(){       
+              	  
+    	  canvas = new fabric.Canvas('c');
     	  
-          $("canvas").attr("height", window.innerHeight);
-          $("canvas").attr("width", window.innerWidth);                    
+          var url = "ws://" + window.location.hostname + ":8080";
+          ws = new WebSocket( url );    	  
+    	  
+          ws.onopen = function(event){
+        	console.log("ws connected");  
+          };
           
-          canvas = new fabric.Canvas('c');
+          ws.onmessage = function(msg){
+        	  
+        	  var payload = JSON.parse( msg.data );        	  
+        	  
+        	  if( payload.type == "download" ){
+        		  
+                  var img = new Image();
+                  img.src = "http://" + window.location.hostname + "/node-pong/" + payload.targetUrl;                  
+                  img.onload = function(){
+                      var imgInstance = new fabric.Image(img, {left: 10, top: 10, angle: 0});
+                      if( img.height > img.width ){
+                          imgInstance.scaleToHeight( 300 );
+                      }else{
+                          imgInstance.scaleToWidth( 300 );
+                      }
+                      canvas.add(imgInstance);            
+                  };
+                  
+        	  }
+        	  
+          };
+          
+          $("#addByUrl").click(function(){
+        	 var url = prompt("Enter an image url");
+        	 ws.send( JSON.stringify({ type: "download", url: url}) );
+          });
+                    
+          $("canvas").attr("height", window.innerHeight);
+          $("canvas").attr("width", $(".col-md-12:first").css("width").replace("px", ""));                    
+          
+          /*          
           canvas.loadFromJSON({"objects":[{"type":"image","originX":"left","originY":"top","left":167,"top":61,"width":1920,"height":1200,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.16,"scaleY":0.16,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/Jason-statham.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":350,"top":205,"width":570,"height":364,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.53,"scaleY":0.53,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/Jack-Bauer-badass.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":440,"top":21,"width":825,"height":550,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.36,"scaleY":0.36,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/liam-Neeson-Taken-2-image10.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":578,"top":222,"width":796,"height":597,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.38,"scaleY":0.38,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/ateamposterbg.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":719,"top":39,"width":1280,"height":1024,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.23,"scaleY":0.23,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/3595619-3532022184-The-B.jpg","filters":[],"crossOrigin":""}],"background":""});         
           
           window.setTimeout(function(){ 
