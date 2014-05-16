@@ -17,6 +17,12 @@ wss.on('connection', function(ws) {
     	if( message.type == "register" ){
     		console.log( "adding to " + message.room );
     		roomSockets.push( {ws: ws, room: message.room} );
+    		
+    		if( fs.existsSync("saved_canvas/" + message.room + ".json") ){
+    			var oldCanvas = fs.readFileSync( "saved_canvas/" + message.room + ".json", "utf8" );
+    			ws.send( JSON.stringify({type: "load", canvas: oldCanvas}) );
+    		}
+    		
     		return;
     	}
     	
@@ -52,6 +58,11 @@ wss.on('connection', function(ws) {
     		_.each(clients, function(rm){
     			rm.ws.send( JSON.stringify(message) );
     		});
+    	}
+    	
+    	if( message.type == "save" ){
+    		var jsCanvas = JSON.stringify( message.canvas );
+    		fs.writeFile( "saved_canvas/" + message.room + ".json", jsCanvas );    		
     	}
     	
     });

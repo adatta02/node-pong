@@ -111,7 +111,11 @@
           
           ws.onmessage = function(msg){
         	  
-        	  var payload = JSON.parse( msg.data );        	  
+        	  var payload = JSON.parse( msg.data );        	          	  
+        	  
+        	  if( payload.type == "load" ){
+        		  canvas.loadFromJSON( payload.canvas, canvas.renderAll.bind(canvas) );
+        	  }
         	  
         	  if( payload.type == "download" ){  		  
         		  
@@ -146,6 +150,11 @@
         	  }
           });          
           
+          window.setInterval(function(){
+        	  var payload = { type: "save", room: room, canvas: canvas };
+        	  // ws.send( JSON.stringify(payload) );        	  
+          }, 30 * 1000);
+          
           $("#addByUrl").click(function(){
         	 var url = prompt("Enter an image url");
         	 ws.send( JSON.stringify({ type: "download", url: url, room: room}) );
@@ -153,43 +162,7 @@
           });
                               
           /*          
-          canvas.loadFromJSON({"objects":[{"type":"image","originX":"left","originY":"top","left":167,"top":61,"width":1920,"height":1200,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.16,"scaleY":0.16,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/Jason-statham.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":350,"top":205,"width":570,"height":364,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.53,"scaleY":0.53,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/Jack-Bauer-badass.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":440,"top":21,"width":825,"height":550,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.36,"scaleY":0.36,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/liam-Neeson-Taken-2-image10.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":578,"top":222,"width":796,"height":597,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.38,"scaleY":0.38,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/ateamposterbg.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":719,"top":39,"width":1280,"height":1024,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.23,"scaleY":0.23,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/3595619-3532022184-The-B.jpg","filters":[],"crossOrigin":""}],"background":""});         
-          
-          window.setTimeout(function(){ 
-        	  canvas.renderAll();
-        	  
-              window.setTimeout(function(){                   
-                  canvas.getObjects()[0].animate("angle", 150, {
-                      onChange: canvas.renderAll.bind(canvas)               
-                  });                  
-              }, 5000);
-              
-          }, 1000);
-                              
-          var urls = [
-            "Jack-Bauer-badass.jpg",
-            "Jason-statham.jpg",
-            "liam-Neeson-Taken-2-image10.jpg",
-            "ateamposterbg.jpg",
-            "3595619-3532022184-The-B.jpg",
-          ];
-          
-          $.each(urls, function(i, src){        	  
-        	  
-	          var img = new Image();
-	          img.src = src;
-	          
-	          img.onload = function(){
-	        	  var imgInstance = new fabric.Image(img, {left: 100, top: 100, angle: 0});
-	        	  if( img.height > img.width ){
-	        		  imgInstance.scaleToHeight( 300 );
-	        	  }else{
-	        		  imgInstance.scaleToWidth( 300 );
-	        	  }
-	        	  canvas.add(imgInstance);        	  
-	          };
-	          
-          });
+          canvas.loadFromJSON({"objects":[{"type":"image","originX":"left","originY":"top","left":167,"top":61,"width":1920,"height":1200,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.16,"scaleY":0.16,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/Jason-statham.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":350,"top":205,"width":570,"height":364,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.53,"scaleY":0.53,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/Jack-Bauer-badass.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":440,"top":21,"width":825,"height":550,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.36,"scaleY":0.36,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/liam-Neeson-Taken-2-image10.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":578,"top":222,"width":796,"height":597,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.38,"scaleY":0.38,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/ateamposterbg.jpg","filters":[],"crossOrigin":""},{"type":"image","originX":"left","originY":"top","left":719,"top":39,"width":1280,"height":1024,"fill":"rgb(0,0,0)","stroke":null,"strokeWidth":1,"strokeDashArray":null,"strokeLineCap":"butt","strokeLineJoin":"miter","strokeMiterLimit":10,"scaleX":0.23,"scaleY":0.23,"angle":0,"flipX":false,"flipY":false,"opacity":1,"shadow":null,"visible":true,"clipTo":null,"backgroundColor":"","src":"http://twitlabs.net/node-pong/3595619-3532022184-The-B.jpg","filters":[],"crossOrigin":""}],"background":""});                   
           */
           
       });
